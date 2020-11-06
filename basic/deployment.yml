@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    name: <application>
+  name: <application>
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: <application>
+  template:
+    metadata:
+      labels:
+        name: <application>
+    spec:
+      containers:
+        - name: <application>
+          image: <Image Address>
+          resources:
+            requests:
+              cpu: 1
+              memory: 1000Mi
+            limits:
+              cpu: 1
+              memory: 1000Mi
+          envFrom:
+            - configMapRef:
+                name: <application>-configmap
+            - secretRef:
+                name: <application>-secrets
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          volumeMounts:
+            - name: volume
+              mountPath: /certificates
+      imagePullSecrets:
+        - name: <Private Docker Registry>
+      volumes:
+        - name: volume
+          configMap:
+            name: <application>-certificates-configmap

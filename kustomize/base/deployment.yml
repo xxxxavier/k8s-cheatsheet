@@ -1,0 +1,59 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ${artifactId}
+spec:
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: ${artifactId}
+    spec:
+      containers:
+        - name: ${artifactId}
+          image: '${artifactId}:latest'
+          resources:
+            requests:
+              cpu: 400m
+              memory: 500Mi
+            limits:
+              cpu: 400m
+              memory: 500Mi
+          envFrom:
+            - configMapRef:
+                name: ${artifactId}-configmap
+            - secretRef:
+                name: ${artifactId}-secrets
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 443
+              scheme: HTTPS
+            initialDelaySeconds: 120
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 443
+              scheme: HTTPS
+            initialDelaySeconds: 120
+            timeoutSeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
+            successThreshold: 1
+          ports:
+            - containerPort: 443
+              protocol: TCP
+          volumeMounts:
+            - name: volume
+              mountPath: /data
+      imagePullSecrets:
+        - name: <Private Docker Registry>
+      volumes:
+        - name: volume
+          configMap:
+            name: volume-configmap

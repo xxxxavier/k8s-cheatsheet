@@ -1,0 +1,31 @@
+---
+# Job is immutable, if want to change, delete the old job first
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: integration-test
+  labels:
+    name: integration-test
+spec:
+  backoffLimit: 4
+  activeDeadlineSeconds: 6000
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: integration-test
+          image: <Image Address>
+          envFrom:
+            - configMapRef:
+                name: configmap
+            - secretRef:
+                name: secret
+          volumeMounts:
+            - name: volume
+              mountPath: /certificates
+      imagePullSecrets:
+        - name: <Private Docker Registry>
+      volumes:
+        - name: volume
+          configMap:
+            name: configmap

@@ -1,0 +1,4 @@
+---
+- op: replace
+  path: /data/tags
+  value: '{stack:"staging", services:"${artifactId}"}'
